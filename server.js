@@ -23,9 +23,23 @@ connectDB();
 
 // ─── Security & Logging ──────────────────────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://mashree-frontend.vercel.app',
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173' || 'https://mashree-frontend.vercel.app',
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, mobile apps, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
